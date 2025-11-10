@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Admin – Ergebnisse</title>
+
+  <!-- DataTables CSS (CDN recommandé par la documentation officielle) -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f7fa; }
+    h1 { color: #1565c0; margin-bottom: 18px; }
+    table { background:white; border-radius: 8px; overflow:hidden; }
+  </style>
+</head>
+<body>
+
+  <h1>📊 Ergebnisse der Kandidaten</h1>
+
+  <table id="results" class="display" style="width:100%">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Lesen</th>
+        <th>Hören</th>
+        <th>Schreiben</th>
+        <th>Total</th>
+        <th>Datum</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- jQuery (nécessaire pour DataTables — recommandé par la documentation officielle) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+  <script src="admin.js"></script>
+</body>
+</html>

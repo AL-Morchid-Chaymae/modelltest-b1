@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Modelltest B1 – Start</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="start-container">
+  <div class="start-card">
+
+    <img src="images/logo.png" alt="Deutschland Logo" class="logo">
+
+    <h1 class="start-title">Modelltest B1 Deutsch</h1>
+    <p class="start-subtitle">Bitte geben Sie Ihren vollständigen Namen ein, um fortzufahren.</p>
+
+    <div class="input-group">
+      <label for="candidate-name">Vorname & Nachname</label>
+      <input type="text" id="candidate-name" autocomplete="name">
+    </div>
+
+    <button class="btn start-btn" id="start-btn">🚀 Test starten</button>
+    <p id="start-error" class="error-msg"></p>
+
+  </div>
+</div>
+
+<script>
+document.getElementById("start-btn").addEventListener("click", () => {
+  const name = document.getElementById("candidate-name").value.trim();
+  if(name === ""){
+    document.getElementById("start-error").textContent = "❌ Name ist erforderlich.";
+    return;
+  }
+
+  localStorage.setItem("candidateName", name);
+
+  document.body.style.transition = "opacity 0.6s";
+  document.body.style.opacity = "0";
+
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 600);
+});
+</script>
+</body>
+</html>

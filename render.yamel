@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: modelltest-b1
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    plan: free

@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Modelltest B1 – Deutsch</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<div class="timer-bar">
+  ⏱️ Verbleibende Zeit: <span id="timer">60:00</span>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<body>
+<script>
+const name = localStorage.getItem("candidateName");
+if(!name){
+  window.location.href = "start.html"; // redirection si pas de nom
+}
+</script>
+
+  <!-- PAGE DU TEST (masquée au départ) -->
+  <div id="test-content">
+    <header class="site-header">
+      <div class="wrap header-content">
+        <img src="images/logo.png" alt="Deutschland Logo" class="logo-small">
+        <div>
+          <h1>Willkommen, <span id="candidateName"></span>!</h1>
+          <p class="lead">Dieser Test enthält die Teile Lesen, Hören und Schreiben. Viel Erfolg!</p>
+        </div>
+      </div>
+    </header>
+    <script>
+    document.getElementById("candidateName").textContent = localStorage.getItem("candidateName");
+    </script>
+
+
+    <main class="wrap">
+      <!-- LESEN -->
+      <section id="lesen" class="card">
+        <h2>📖 Lesen</h2>
+
+        <!-- Teil 1: Langer Text + 6 Fragen -->
+        <article class="teil">
+          <h3>Teil 1 — Leseverstehen (Text & 6 Fragen)</h3>
+          <div class="text-box">
+            <p>
+              <strong>Text:</strong><br>
+              Herr Müller arbeitet seit fünf Jahren in einer Firma in der Innenstadt. Jeden Morgen fährt er mit dem Fahrrad zur Arbeit, weil er so schneller ist als mit dem Auto. Mittags geht er häufig in ein kleines Café gegenüber dem Büro, wo er sich mit Kollegen trifft. Am Wochenende fährt er manchmal mit dem Zug in die Berge, um zu wandern; gelegentlich besucht er auch seine Schwester in einer Nachbarstadt. Seine Hobbys sind Gärtnern, Lesen und Kochen. Wenn das Wetter schlecht ist, bleibt er lieber zu Hause und liest ein Buch oder schaut einen Film. Im Sommer organisiert er oft kleine Ausflüge mit Freunden, bei denen er auch gerne fotografiert. Letztes Jahr hat er an einem Kochkurs teilgenommen und dort neue Rezepte gelernt.
+            </p>
+          </div>
+
+          <div class="fragen">
+            <p><strong>Frage 1:</strong> Wie kommt Herr Müller normalerweise zur Arbeit?</p>
+            <label><input type="radio" name="lesen_q1" value="fahrrad"> Mit dem Fahrrad</label><br>
+            <label><input type="radio" name="lesen_q1" value="auto"> Mit dem Auto</label><br>
+            <label><input type="radio" name="lesen_q1" value="zug"> Mit dem Zug</label>
+
+            <p><strong>Frage 2:</strong> Was macht er mittags oft?</p>
+            <label><input type="radio" name="lesen_q2" value="cafe"> Er geht ins Café</label><br>
+            <label><input type="radio" name="lesen_q2" value="sport"> Er macht Sport</label><br>
+            <label><input type="radio" name="lesen_q2" value="arbeiten"> Er arbeitet länger</label>
+
+            <p><strong>Frage 3:</strong> Wohin fährt er manchmal am Wochenende?</p>
+            <label><input type="radio" name="lesen_q3" value="berge"> In die Berge</label><br>
+            <label><input type="radio" name="lesen_q3" value="meer"> Ans Meer</label><br>
+            <label><input type="radio" name="lesen_q3" value="stadt"> In die Stadt</label>
+
+            <p><strong>Frage 4 (Kurzantwort):</strong> Nenne zwei Hobbys von Herrn Müller.</p>
+            <input type="text" id="lesen_q4" placeholder="z. B. Gärtnern, Lesen">
+
+            <p><strong>Frage 5 (Wahr/Falsch):</strong> Herr Müller besucht seine Schwester in der gleichen Stadt.</p>
+            <label><input type="radio" name="lesen_q5" value="wahr"> Wahr</label>
+            <label><input type="radio" name="lesen_q5" value="falsch"> Falsch</label>
+
+            <p><strong>Frage 6 (Lückentext, ein Wort):</strong> „Wenn das Wetter schlecht ist, bleibt er lieber zu <input id="lesen_q6" type="text" placeholder="ein Wort">.“</p>
+          </div>
+
+          <p class="small">Hinweis: Beim Lesen-Teil werden die Antworten intern gespeichert — es erscheint kein Ergebnis.</p>
+          <button class="btn" id="lesen-save">Antworten speichern (Lesen)</button>
+        </article>
+
+        <!-- Teil 2: Brief ergänzen (Präpositionen & Wortschatz mit choix) -->
+        <article class="teil">
+          <h3>Teil 2 — Ergänzen Sie die Wörter im Brief (Präpositionen & Wortschatz)</h3>
+          <p><strong>Aufgabe:</strong> Wählen Sie für jede Lücke die passende Option (A–D). Jede Lücke hat vier Auswahlmöglichkeiten.</p>
+
+          <div class="brief-box">
+            <p>
+              Liebe Claudia,<br>
+              vielen Dank für deine Einladung zu der Feier <em>______</em> Samstagabend. Ich freue mich sehr, dass du mich <em>______</em> diese besondere Nacht eingeladen hast. Leider kann ich nicht kommen, weil ich <em>______</em> meinem Bruder helfen muss. Er wohnt gerade <em>______</em> einer neuen Wohnung und braucht Unterstützung <em>______</em> dem Umzug. Ich hoffe, dass wir uns bald wiedersehen — vielleicht <em>______</em> dem nächsten Wochenende? Bitte sag mir, ob ich etwas mitbringen soll. Viele Grüße,<br>
+              Maria
+            </p>
+          </div>
+
+          <div class="choices">
+            <p>Lücke 1:
+              <select id="brief_l1">
+                <option value="">-- wählen --</option>
+                <option value="A">A) an</option>
+                <option value="B">B) am</option>
+                <option value="C">C) im</option>
+                <option value="D">D) bei</option>
+              </select>
+            </p>
+
+            <p>Lücke 2:
+              <select id="brief_l2">
+                <option value="">-- wählen --</option>
+                <option value="A">A) zu</option>
+                <option value="B">B) für</option>
+                <option value="C">C) mit</option>
+                <option value="D">D) auf</option>
+              </select>
+            </p>
+
+            <p>Lücke 3:
+              <select id="brief_l3">
+                <option value="">-- wählen --</option>
+                <option value="A">A) am</option>
+                <option value="B">B) im</option>
+                <option value="C">C) beim</option>
+                <option value="D">D) in</option>
+              </select>
+            </p>
+
+            <p>Lücke 4:
+              <select id="brief_l4">
+                <option value="">-- wählen --</option>
+                <option value="A">A) in</option>
+                <option value="B">B) an</option>
+                <option value="C">C) bei</option>
+                <option value="D">D) zu</option>
+              </select>
+            </p>
+
+            <p>Lücke 5:
+              <select id="brief_l5">
+                <option value="">-- wählen --</option>
+                <option value="A">A) über</option>
+                <option value="B">B) für</option>
+                <option value="C">C) beim</option>
+                <option value="D">D) mit</option>
+              </select>
+            </p>
+
+            <p>Lücke 6:
+              <select id="brief_l6">
+                <option value="">-- wählen --</option>
+                <option value="A">A) an</option>
+                <option value="B">B) in</option>
+                <option value="C">C) bis</option>
+                <option value="D">D) am</option>
+              </select>
+            </p>
+          </div>
+
+          <p class="small">Die Auswahl enthält typische Präpositionen und Strukturen auf B1-Niveau.</p>
+          <button class="btn" id="brief-save">Antworten speichern (Brief)</button>
+        </article>
+
+        <!-- Teil 3: Grammatik & Situationsaufgaben -->
+        <article class="teil">
+          <h3>Teil 3 — Grammatik & Situationsaufgaben</h3>
+          <p>Lesen Sie die drei kurzen Situationen und wählen Sie jeweils die richtige Option.</p>
+
+          <div class="situation">
+            <p><strong>Sit. A:</strong> Lisa sagt, sie <em>______</em> nächste Woche nach Italien fliegen.<br>
+              <label><input type="radio" name="gram_a" value="wird"> wird</label>
+              <label><input type="radio" name="gram_a" value="würde"> würde</label>
+              <label><input type="radio" name="gram_a" value="kann"> kann</label>
+            </p>
+
+            <p><strong>Sit. B:</strong> Beim Einkaufen hat Herr Becker die Milch vergessen; er sagt: „Ich muss noch schnell ______ gehen.“<br>
+              <label><input type="radio" name="gram_b" value="zum"> zum Markt</label>
+              <label><input type="radio" name="gram_b" value="in"> in das Geschäft</label>
+              <label><input type="radio" name="gram_b" value="bei"> bei dem Markt</label>
+            </p>
+
+            <p><strong>Sit. C:</strong> Wenn das Wetter morgen schön ist, ______ wir im Garten arbeiten.<br>
+              <label><input type="radio" name="gram_c" value="werden"> werden</label>
+              <label><input type="radio" name="gram_c" value="würden"> würden</label>
+              <label><input type="radio" name="gram_c" value="können"> können</label>
+            </p>
+          </div>
+
+          <p class="small">Diese Aufgaben erfordern Konzentration: unterschiedliche Zeiten, Modalverben und Präpositionen kommen vor.</p>
+          <button class="btn" id="gram-save">Antworten speichern (Grammatik)</button>
+        </article>
+      </section>
+
+      <!-- HÖREN -->
+      <section id="hoeren" class="card">
+        <h2>🎧 Hören</h2>
+
+        <article class="teil">
+          <h3>Teil 1 — Supermarkt (Hörverständnis)</h3>
+          <p>Hören Sie das Gespräch im Supermarkt und beantworten Sie die Fragen im Textfeld (Antworten werden intern gespeichert).</p>
+          <audio controls src="audio/supermarkt.mp3"></audio>
+
+          <ol>
+            <li>Was kauft die Frau? (Mehrfachantwort möglich)</li>
+            <li>Warum sucht sie das Produkt nicht im Regal?</li>
+            <li>Wie viel kostet das Produkt laut dem Verkäufer?</li>
+          </ol>
+
+          <textarea id="hoeren_supermarkt" rows="3" placeholder="Ihre Antworten hier..."></textarea>
+          <button class="btn" id="hoeren_sm_save">Antworten speichern (Supermarkt)</button>
+        </article>
+
+        <article class="teil">
+          <h3>Teil 2 — Bahnhof (Hörverständnis)</h3>
+          <p>Hören Sie das Gespräch am Bahnhof (Zug, Gleis, Durchsage). Schreiben Sie Ihre Antworten unten.</p>
+          <audio controls src="audio/bahnhof.mp3"></audio>
+
+          <ol>
+            <li>Um wieviel Uhr fährt der Zug ab?</li>
+            <li>Auf welchem Gleis (Gleisnummer) ist die Abfahrt?</li>
+            <li>Gibt es eine Verspätung? Wenn ja: wie lange?</li>
+          </ol>
+
+          <textarea id="hoeren_bahnhof" rows="3" placeholder="Ihre Antworten hier..."></textarea>
+          <button class="btn" id="hoeren_bhf_save">Antworten speichern (Bahnhof)</button>
+        </article>
+
+        <article class="teil">
+  <h3>Teil 3 — Arbeit und Freizeit</h3>
+  <p>Hören Sie das Gespräch zwischen Anna und Markus und beantworten Sie die Fragen.</p>
+  <audio controls src="audio/arbeit_freizeit.mp3"></audio>
+
+  <ol>
+    <li>Warum war Markus gestern lange im Büro?</li>
+    <li>Was macht Anna, um sich zu entspannen?</li>
+    <li>Was hilft Markus, den Kopf frei zu bekommen?</li>
+    <li>Was planen die beiden am Ende?</li>
+  </ol>
+
+  <textarea id="hoeren_arbeitfreizeit" rows="3" placeholder="Ihre Antworten hier..."></textarea>
+  <button class="btn" id="hoeren_af_save">Antworten speichern (Arbeit & Freizeit)</button>
+</article>
+
+<!-- <article class="teil">
+  <h3>Teil 3 — Arbeit und Freizeit (Dialog mit zwei Stimmen)</h3>
+  <p>Hören Sie das Gespräch zwischen Anna und Markus über Arbeit und Freizeit.</p>
+  <audio controls src="audio/arbeit_freizeit_duo.mp3"></audio>
+
+  <ol>
+    <li>Warum war Markus gestern lange im Büro?</li>
+    <li>Was macht Anna, um sich zu entspannen?</li>
+    <li>Was hilft Markus, den Kopf frei zu bekommen?</li>
+    <li>Was planen die beiden am Ende?</li>
+  </ol>
+
+  <textarea id="hoeren_arbeitfreizeit" rows="3" placeholder="Ihre Antworten hier..."></textarea>
+  <button class="btn" id="hoeren_af_save">Antworten speichern (Arbeit & Freizeit)</button>
+</article> -->
+
+
+
+        <p class="small">Audios: Erzeuge `audio/supermarkt.mp3` und `audio/bahnhof.mp3` mit gTTS (voir scripts fournis précédemment).</p>
+      </section>
+
+      <!-- SCHREIBEN -->
+      <section id="schreiben" class="card">
+        <h2>✍️ Schreiben</h2>
+
+        <article class="teil">
+          <h3>Aufgabe — Brief / E-Mail (ausführliche Situation)</h3>
+          <p><strong>Situation:</strong> Du arbeitest in einer Firma und dein Team plant ein großes Projekt-Meeting in zwei Wochen. Aus persönlichen Gründen (Familienbesuch, wichtige Verpflichtung) kannst du an dem Datum nicht teilnehmen. Schreibe eine formelle E-Mail an deine Projektleiterin, in der du:</p>
+          <ul>
+            <li>erklärst, warum du nicht teilnehmen kannst (konkret, 2–3 Sätze);</li>
+            <li>konkrete alternative Termine vorschlägst (mindestens zwei Möglichkeiten);</li>
+            <li>angibst, welche Unterlagen oder Hinweise du vorher zur Verfügung stellen kannst;</li>
+            <li>abschließend um Verständnis bittest und Vorschläge für eine kurze Teilnahme per Telefon/Video machst.</li>
+          </ul>
+
+          <textarea id="schreiben_text" rows="10" placeholder="Schreiben Sie hier Ihre E-Mail (ca. 100–140 Wörter)..."></textarea>
+          <button class="btn" id="schreiben-save">Antwort speichern (Schreiben)</button>
+          <p class="small">Hinweis: Textlänge wird intern geprüft, aber keine Korrektur oder Punktzahl wird angezeigt.</p>
+        </article>
+      </section>
+      <div class="german-keyboard">
+  <button data-char="ä">ä</button>
+  <button data-char="ö">ö</button>
+  <button data-char="ü">ü</button>
+  <button data-char="Ä">Ä</button>
+  <button data-char="Ö">Ö</button>
+  <button data-char="Ü">Ü</button>
+  <button data-char="ß">ß</button>
+</div>
+
+
+      <!-- SUBMIT: enregistre tout sans afficher le résultat -->
+      <section class="card">
+        <h2>Abgabe</h2>
+        <p>Wenn Sie alle Teile bearbeitet haben, drücken Sie bitte auf <strong>„Alle Antworten abschicken“</strong>. Ihre Antworten werden gespeichert, aber es werden keine Ergebnisse direkt angezeigt.</p>
+        <button class="btn" id="submit-all">Alle Antworten abschicken</button>
+        <p id="submit-msg" class="small"></p>
+        
+        <!-- ✅ Bouton de redémarrage du test -->
+        <button class="btn" id="restart-test">🔁 Neuen Test starten</button>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>© 2025 Modelltest B1 — Erstellt von Chaymae</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
