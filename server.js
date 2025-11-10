@@ -8,7 +8,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // ✅ Base de données SQLite
-const db = new sqlite3.Database("./results.db", (err) => {
+const db = new sqlite3.Database("results.db", (err) => {
   if (err) console.error(err);
   console.log("✅ Base de données SQLite ouverte");
 });
