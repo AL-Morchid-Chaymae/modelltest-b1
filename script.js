@@ -157,7 +157,8 @@ document.getElementById("submit-all")?.addEventListener("click", () => {
       lesen: r.lesen,
       hoeren: r.hoeren,
       schreiben: r.schreiben,
-      total: r.total
+      total: r.total,
+      schreiben_text: storedAnswers.schreiben.text || ""
     })
   })
   .then(() => console.log("✅ Résultats enregistrés dans SQLite"))

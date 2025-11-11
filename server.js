@@ -28,22 +28,17 @@ CREATE TABLE IF NOT EXISTS results (
 
 
 // ✅ Route pour enregistrer les résultats
-app.post("/save", async (req, res) => {
-  try {
-    const { name, lesen, hoeren, schreiben, total } = req.body;
+app.post("/save", (req, res) => {
+  const { name, lesen, hoeren, schreiben, total, schreiben_text } = req.body;
 
-    await pool.query(
-      `INSERT INTO results (name, lesen, hoeren, schreiben, total)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [name, lesen, hoeren, schreiben, total]
-    );
-
-    res.json({ success: true });
-
-  } catch (err) {
-    console.error("❌ Erreur DB:", err);
-    res.status(500).json({ error: err.message });
-  }
+  db.run(
+    `INSERT INTO results (name, lesen, hoeren, schreiben, total, schreiben_text) VALUES (?, ?, ?, ?, ?, ?)`,
+    [name, lesen, hoeren, schreiben, total, schreiben_text],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true });
+    }
+  );
 });
 
 
