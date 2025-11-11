@@ -1,0 +1,65 @@
+/* Style du tableau */
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #f5f7fa;
+}
+
+h1 {
+  color: #1565c0;
+  margin-bottom: 18px;
+}
+
+table {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* === POPUP DU TEXTE SCHREIBEN === */
+#popup {
+  position: absolute; /* ← plus FIXE */
+  top: 0; 
+  left: 0;
+  width: 100%; 
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+
+  display: none;
+  justify-content: center;
+  align-items: flex-start; /* la fenêtre suivra le scroll */
+  padding-top: 80px; /* espace pour respirer */
+  z-index: 9999;
+}
+
+#popup-box {
+  background: white;
+  padding: 25px;
+  width: 65%;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 10px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.35);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+#popup-text {
+  white-space: pre-wrap; /* permet d'afficher le texte avec retours à la ligne */
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+#popup-close {
+  margin-top: 12px;
+  background: #1565c0;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#popup-close:hover {
+  background: #0d47a1;
+}

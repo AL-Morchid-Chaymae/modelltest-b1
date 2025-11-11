@@ -381,3 +381,10 @@ textarea{resize:vertical}
 .german-keyboard button:hover {
   background: #dce5eb;
 }
+
+
+td {
+  max-width: 400px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

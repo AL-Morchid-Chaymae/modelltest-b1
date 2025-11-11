@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Admin – Ergebnisse</title>
+  <link rel="stylesheet" href="admin.css">
 
   <!-- DataTables CSS (CDN recommandé par la documentation officielle) -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -24,20 +25,22 @@
 
   <h1>📊 Ergebnisse der Kandidaten</h1>
 
-  <table id="results" class="display" style="width:100%">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Lesen</th>
-        <th>Hören</th>
-        <th>Schreiben</th>
-        <th>Total</th>
-        <th>Schreiben Text</th> <!-- ✅ ajouté -->
-        <th>Datum</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+<table id="results" class="display" style="width:100%">
+  <thead>
+    <tr>
+      <th>Nom</th>
+      <th>Lesen</th>
+      <th>Hören</th>
+      <th>Schreiben</th>
+      <th>Total</th>
+      <th>Schreiben Text</th> <!-- ✅ ajouter ici -->
+      <th>Datum</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+  
 
   <!-- jQuery (nécessaire pour DataTables — recommandé par la documentation officielle) -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -45,5 +48,12 @@
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
   <script src="admin.js"></script>
+  <div id="popup">
+  <div id="popup-box">
+    <h3>✍️ Schreiben – Text</h3>
+    <p id="popup-text"></p>
+    <button id="popup-close">Schließen</button>
+  </div>
+</div>
 </body>
 </html>
