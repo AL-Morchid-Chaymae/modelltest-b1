@@ -1,19 +1,19 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { Pool } = require("pg"); // ✅ PostgreSQL
+const { Pool } = require("pg");
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// ✅ Base PostgreSQL (COLLE ICI TON URL EXACTE)
+// ✅ Connexion PostgreSQL (URL Railway)
 const pool = new Pool({
   connectionString: "postgresql://postgres:SHWMkIlzbUwjsEnilEXEWnMViMNLWrvC@mainline.proxy.rlwy.net:10061/railway",
   ssl: { rejectUnauthorized: false }
 });
 
-// ✅ Création de la table si elle n'existe pas
+// ✅ Création de la table (inclut schreiben_text)
 pool.query(`
 CREATE TABLE IF NOT EXISTS results (
   id SERIAL PRIMARY KEY,
@@ -22,28 +22,32 @@ CREATE TABLE IF NOT EXISTS results (
   hoeren INTEGER,
   schreiben INTEGER,
   total INTEGER,
+  schreiben_text TEXT,
   date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-`);
+`).then(() => console.log("✅ Table vérifiée"))
+  .catch(err => console.error("❌ Erreur création table:", err));
 
 
 // ✅ Route pour enregistrer les résultats
-app.post("/save", (req, res) => {
+app.post("/save", async (req, res) => {
   const { name, lesen, hoeren, schreiben, total, schreiben_text } = req.body;
 
-  db.run(
-    `INSERT INTO results (name, lesen, hoeren, schreiben, total, schreiben_text) VALUES (?, ?, ?, ?, ?, ?)`,
-    [name, lesen, hoeren, schreiben, total, schreiben_text],
-    (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ success: true });
-    }
-  );
+  try {
+    await pool.query(
+      `INSERT INTO results (name, lesen, hoeren, schreiben, total, schreiben_text)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [name, lesen, hoeren, schreiben, total, schreiben_text]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ ERREUR SQL:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 
-
-// ✅ Route pour l’Admin
+// ✅ Route Admin → récupérer données
 app.get("/results", async (req, res) => {
   try {
     const { rows } = await pool.query(`SELECT * FROM results ORDER BY date DESC`);
@@ -53,11 +57,11 @@ app.get("/results", async (req, res) => {
   }
 });
 
-// ✅ Servir les fichiers HTML
+// ✅ Servir les fichiers du site
 app.use(express.static("./"));
 
-// ✅ PORT pour Railway
+// ✅ Railway Port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Serveur en ligne → http://localhost:${PORT}`);
+  console.log("✅ Serveur en ligne sur port " + PORT);
 });
