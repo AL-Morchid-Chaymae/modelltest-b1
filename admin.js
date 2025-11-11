@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  $('#results').DataTable({
+  const table = $('#results').DataTable({
     ajax: {
       url: "https://modelltest-b1-production.up.railway.app/results",
       dataSrc: ""
@@ -10,7 +10,13 @@ $(document).ready(function () {
       { data: "hoeren" },
       { data: "schreiben" },
       { data: "total" },
-      { data: "date" }
+      { data: "date" },
+      { 
+        data: "schreiben_text",
+        render: function (data) {
+          return `<button class="view-btn" data-text="${encodeURIComponent(data || '')}">📄 Voir</button>`;
+        }
+      }
     ],
     language: {
       "emptyTable": "Keine Daten verfügbar",
@@ -19,5 +25,17 @@ $(document).ready(function () {
       "info": "Zeige _START_ bis _END_ von _TOTAL_",
       "paginate": { "next": "Weiter", "previous": "Zurück" }
     }
+  });
+
+  // ✅ Afficher le texte dans une popup
+  $('#results tbody').on('click', '.view-btn', function () {
+    const text = decodeURIComponent($(this).data('text'));
+    $('#popup-text').text(text || "(Kein Text)");
+    $('#popup').fadeIn(200);
+  });
+
+  // ✅ Fermer popup
+  $('#popup-close').click(function () {
+    $('#popup').fadeOut(200);
   });
 });
