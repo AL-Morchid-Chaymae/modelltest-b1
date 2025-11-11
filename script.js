@@ -1,30 +1,32 @@
 /* ===== TIMER 60 MINUTES ===== */
 let timeLeft = 60 * 60; // 60 minutes en secondes
-const timerEl = document.getElementById("timer");
+const timerEl = document.getElementById("timerEl");
 
 function updateTimer() {
   const min = Math.floor(timeLeft / 60);
   const sec = timeLeft % 60;
+
   timerEl.textContent = `${min}:${sec < 10 ? '0' : ''}${sec}`;
   timeLeft--;
 
   if (timeLeft < 0) {
-  clearInterval(timerInterval); // stop timer
+    clearInterval(timerInterval);
 
-  alert("⏱️ Le temps est terminé ! Ihre Zeit ist abgelaufen.");
+    alert("⏱️ Le temps est terminé ! Ihre Zeit ist abgelaufen.");
 
-  // Désactiver toutes les entrées
-  document.querySelectorAll("input, textarea, select, button").forEach(el => {
-    if(el.id !== "submit-all") el.disabled = true;
-  });
+    document.querySelectorAll("input, textarea, select, button").forEach(el => {
+      if(el.id !== "submit-all") el.disabled = true;
+    });
 
-  // Forcer l'envoi des résultats
-  document.getElementById("submit-all").click();
-  return;
-}
+    document.getElementById("submit-all").click();
+  }
 }
 
 const timerInterval = setInterval(updateTimer, 1000);
+
+
+
+
 
 
 /* ===== STOCKAGE DES RÉPONSES ===== */
@@ -147,7 +149,7 @@ document.getElementById("submit-all")?.addEventListener("click", () => {
   setTimeout(() => { document.getElementById("progress-bar").style.width = r.total + "%"; }, 200);
 
   // ✅ Enregistrer dans SQLite (backend Node.js)
-  fetch("http://localhost:3000/save", {
+  fetch("modelltest-b1-production.up.railway.app", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

@@ -1,20 +1,20 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { Pool } = require("pg");
+const { Pool } = require("pg"); // ✅ PostgreSQL
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// ✅ Connexion PostgreSQL (Railway)
-const db = new Pool({
-  connectionString: process.env.DATABASE_URL,
+// ✅ Base PostgreSQL (COLLE ICI TON URL EXACTE)
+const pool = new Pool({
+  connectionString: "postgresql://postgres:SHWMkIlzbUwjsEnilEXEWnMViMNLWrvC@mainline.proxy.rlwy.net:10061/railway",
   ssl: { rejectUnauthorized: false }
 });
 
-// ✅ Création table si elle n'existe pas
-db.query(`
+// ✅ Création de la table si elle n'existe pas
+pool.query(`
 CREATE TABLE IF NOT EXISTS results (
   id SERIAL PRIMARY KEY,
   name TEXT,
@@ -23,34 +23,45 @@ CREATE TABLE IF NOT EXISTS results (
   schreiben INTEGER,
   total INTEGER,
   date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)`).catch(console.error);
+);
+`);
 
-// ✅ Route d'enregistrement
+
+// ✅ Route pour enregistrer les résultats
 app.post("/save", async (req, res) => {
-  const { name, lesen, hoeren, schreiben, total } = req.body;
   try {
-    await db.query(
-      `INSERT INTO results (name, lesen, hoeren, schreiben, total) VALUES ($1,$2,$3,$4,$5)`,
+    const { name, lesen, hoeren, schreiben, total } = req.body;
+
+    await pool.query(
+      `INSERT INTO results (name, lesen, hoeren, schreiben, total)
+       VALUES ($1, $2, $3, $4, $5)`,
       [name, lesen, hoeren, schreiben, total]
     );
+
     res.json({ success: true });
+
   } catch (err) {
+    console.error("❌ Erreur DB:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ Route admin
+
+// ✅ Route pour l’Admin
 app.get("/results", async (req, res) => {
   try {
-    const data = await db.query(`SELECT * FROM results ORDER BY date DESC`);
-    res.json(data.rows);
+    const { rows } = await pool.query(`SELECT * FROM results ORDER BY date DESC`);
+    res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ Servir ton site
+// ✅ Servir les fichiers HTML
 app.use(express.static("./"));
 
+// ✅ PORT pour Railway
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`✅ Serveur en ligne → http://localhost:${PORT}`);
+});
