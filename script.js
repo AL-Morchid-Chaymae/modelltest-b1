@@ -149,7 +149,7 @@ document.getElementById("submit-all")?.addEventListener("click", () => {
   setTimeout(() => { document.getElementById("progress-bar").style.width = r.total + "%"; }, 200);
 
   // ✅ Enregistrer dans SQLite (backend Node.js)
-  fetch("modelltest-b1-production.up.railway.app", {
+  fetch("https://modelltest-b1-production.up.railway.app/save", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
