@@ -161,8 +161,9 @@ document.getElementById("submit-all")?.addEventListener("click", () => {
       schreiben_text: storedAnswers.schreiben.text || ""
     })
   })
-  .then(() => console.log("✅ Résultats enregistrés dans SQLite"))
-  .catch(err => console.error("❌ Erreur d’enregistrement :", err));
+  .then(res => res.json())
+.then(data => console.log("✅ Daten gespeichert:", data))
+.catch(err => console.error("❌ Fehler beim Senden:", err));
 
   // ✅ Générer un certificat **uniquement si réussite**
   if (r.total >= 60) {
