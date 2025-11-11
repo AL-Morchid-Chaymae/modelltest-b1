@@ -1,22 +1,23 @@
-// Remplacer par ton domaine Railway :
-const API_URL = "https://modelltest-b1-production.up.railway.app/results";
-
 $(document).ready(function () {
-  fetch(API_URL)
-    .then(res => res.json())
-    .then(data => {
-      $("#results").DataTable({
-        data: data,
-        columns: [
-          { data: "name" },
-          { data: "lesen" },
-          { data: "hoeren" },
-          { data: "schreiben" },
-          { data: "total" },
-          { data: "date" }
-        ],
-        order: [[5, "desc"]]
-      });
-    })
-    .catch(err => console.error("❌ Erreur chargement résultats:", err));
+  $('#results').DataTable({
+    ajax: {
+      url: "https://modelltest-b1-production.up.railway.app/results",
+      dataSrc: ""
+    },
+    columns: [
+      { data: "name" },
+      { data: "lesen" },
+      { data: "hoeren" },
+      { data: "schreiben" },
+      { data: "total" },
+      { data: "date" }
+    ],
+    language: {
+      "emptyTable": "Keine Daten verfügbar",
+      "search": "Suchen:",
+      "lengthMenu": "Zeige _MENU_ Einträge",
+      "info": "Zeige _START_ bis _END_ von _TOTAL_",
+      "paginate": { "next": "Weiter", "previous": "Zurück" }
+    }
+  });
 });
