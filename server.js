@@ -32,65 +32,94 @@ CREATE TABLE IF NOT EXISTS results (
 `);
 // 🧩 Évaluation Schreiben B1 (AI Rules)
 function evaluateWritingB1(text) {
-  if (!text || text.trim().length < 10) return 0;
+  if (!text || text.trim().length < 20) return 0;
 
-  const t = text.toLowerCase();
+  const lower = text.toLowerCase();
   let score = 0;
 
-  /* ------------------------------
-     1) Longueur du texte (10 pts)
-  ------------------------------ */
-  const wc = t.split(/\s+/).length;
-  if (wc >= 50) score += 4;
-  if (wc >= 80) score += 7;
-  if (wc >= 120) score += 10;
+  /* =====================================================
+     1) LONGUEUR DU TEXTE – 8 points
+     (Goethe B1 demande 100–120 mots)
+  ====================================================== */
+  const wc = text.trim().split(/\s+/).length;
 
-  /* -----------------------------------------
-     2) Respect du thème "Email / Meeting" (10 pts)
-  ------------------------------------------ */
-  const thematicWords = [
-    "meeting","projekt","termin","email","teilnehmen",
-    "absage","vorschlag","leiterin","datum","planung"
+  if (wc >= 60) score += 2;
+  if (wc >= 80) score += 4;
+  if (wc >= 100) score += 6;
+  if (wc >= 130) score += 8; // excellent
+
+
+  /* =====================================================
+     2) RESPECT DU THÈME – 10 points
+     (Meeting, Absage, Vorschlag, Termin, E-Mail)
+  ====================================================== */
+  const keywordsTheme = [
+    "meeting", "projekt", "termin", "absage", 
+    "teilnehmen", "vorschlag", "leiterin",
+    "email", "besprechung", "datum"
   ];
-  let thematicCount = thematicWords.filter(w => t.includes(w)).length;
 
-  if (thematicCount >= 5) score += 10;
-  else if (thematicCount >= 3) score += 7;
-  else if (thematicCount >= 1) score += 4;
+  const themeMatches = keywordsTheme.filter(k => lower.includes(k)).length;
 
-  /* ------------------------------------------
-     3) Connecteurs B1 (10 pts)
-  ------------------------------------------ */
+  if (themeMatches >= 6) score += 10;
+  else if (themeMatches >= 4) score += 7;
+  else if (themeMatches >= 2) score += 4;
+  else score += 0; // ❌ hors sujet (telc : résultat = 0)
+
+
+  /* =====================================================
+     3) CONNECTEURS B1 – 10 points
+     (weil, deshalb, trotzdem, danach…)
+  ====================================================== */
   const connectors = [
-    "weil","deshalb","trotzdem","außerdem","danach",
-    "dann","zuerst","später","damit","obwohl"
+    "weil", "deshalb", "trotzdem", "außerdem",
+    "danach", "damit", "zuerst", "später"
   ];
-  let connectorsUsed = connectors.filter(c => t.includes(c)).length;
 
-  if (connectorsUsed >= 5) score += 10;
-  else if (connectorsUsed >= 3) score += 7;
-  else if (connectorsUsed >= 2) score += 5;
-  else if (connectorsUsed >= 1) score += 2;
+  const usedConn = connectors.filter(c => lower.includes(c)).length;
 
-  /* ------------------------------------------
-     4) Structure d'un mail (5 pts)
-  ------------------------------------------ */
-  if (t.includes("sehr geehrte") || t.includes("hallo")) score += 1;
-  if (t.includes("vorschlag") || t.includes("termin")) score += 1;
-  if (t.includes("mit freundlichen grüßen")) score += 3;
+  if (usedConn >= 4) score += 10;
+  else if (usedConn >= 3) score += 8;
+  else if (usedConn >= 2) score += 5;
+  else if (usedConn >= 1) score += 2;
 
-  /* ------------------------------------------
-     5) Grammaire B1 (Modalverben, phrases)
-  ------------------------------------------ */
-  const modals = ["kann","könnte","muss","soll","würde","möchte"];
-  const modalCount = modals.filter(m => t.includes(m)).length;
 
-  if (modalCount >= 3) score += 5;
-  else if (modalCount >= 1) score += 3;
+  /* =====================================================
+     4) STRUCTURE FORMELLE – 7 points
+     (Anrede + Schlussformel + Vorschläge)
+  ====================================================== */
+  let structPoints = 0;
 
-  /* Score final */
+  if (lower.includes("sehr geehrte") || lower.includes("hallo")) structPoints += 2;
+  if (lower.includes("termin") || lower.includes("vorschlag")) structPoints += 2;
+  if (lower.includes("mit freundlichen grüßen")) structPoints += 3;
+
+  score += structPoints;
+
+
+  /* =====================================================
+     5) GRAMMATIK B1 – 5 points
+     Modalverben + Nebensätze (weil, dass…)
+  ====================================================== */
+  const modalverbs = ["kann", "muss", "soll", "würde", "könnte", "möchte"];
+
+  const modalCount = modalverbs.filter(m => lower.includes(m)).length;
+  const subClauses = (lower.match(/\b(weil|dass|wenn)\b/g) || []).length;
+
+  let grammarScore = 0;
+
+  if (modalCount >= 2) grammarScore += 2;
+  if (subClauses >= 1) grammarScore += 3;
+
+  score += grammarScore;
+
+
+  /* =====================================================
+     SCORE FINAL (Max 40)
+  ====================================================== */
   return Math.min(score, 40);
 }
+
 
 // ✅ Route pour enregistrer les résultats
 app.post("/save", async (req, res) => {
