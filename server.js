@@ -7,13 +7,17 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// ✔ Connexion PostgreSQL Railway
+// 👉 Très important : servir index.html, admin.html, script.js…
+app.use(express.static(__dirname));
+
+
+// ✅ Connexion PostgreSQL
 const pool = new Pool({
   connectionString: "postgresql://postgres:SHWMkIlzbUwjsEnilEXEWnMViMNLWrvC@mainline.proxy.rlwy.net:10061/railway",
   ssl: { rejectUnauthorized: false }
 });
 
-// ✔ Création table
+// ✅ Création de la table
 pool.query(`
 CREATE TABLE IF NOT EXISTS results (
   id SERIAL PRIMARY KEY,
@@ -26,54 +30,69 @@ CREATE TABLE IF NOT EXISTS results (
   date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 `);
-
-/* ----------------------------------------------------
-   FONCTION : Correction automatique Schreiben B1
------------------------------------------------------*/
+// 🧩 Évaluation Schreiben B1 (AI Rules)
 function evaluateWritingB1(text) {
   if (!text || text.trim().length < 10) return 0;
 
+  const t = text.toLowerCase();
   let score = 0;
-  const lower = text.toLowerCase();
 
-  // Longueur
-  const wc = text.trim().split(/\s+/).length;
+  /* ------------------------------
+     1) Longueur du texte (10 pts)
+  ------------------------------ */
+  const wc = t.split(/\s+/).length;
   if (wc >= 50) score += 4;
-  if (wc >= 80) score += 6;
-  if (wc >= 120) score += 8;
+  if (wc >= 80) score += 7;
+  if (wc >= 120) score += 10;
 
-  // Respect du sujet
-  const keywords = ["meeting", "projekt", "termin", "email", "teilnehmen", "absage", "vorschlag", "leiterin"];
-  const relevantCount = keywords.filter(k => lower.includes(k)).length;
-  if (relevantCount >= 5) score += 10;
-  else if (relevantCount >= 3) score += 6;
-  else if (relevantCount >= 1) score += 3;
+  /* -----------------------------------------
+     2) Respect du thème "Email / Meeting" (10 pts)
+  ------------------------------------------ */
+  const thematicWords = [
+    "meeting","projekt","termin","email","teilnehmen",
+    "absage","vorschlag","leiterin","datum","planung"
+  ];
+  let thematicCount = thematicWords.filter(w => t.includes(w)).length;
 
-  // Connecteurs B1
-  const connectors = ["weil", "deshalb", "trotzdem", "außerdem", "danach", "zuerst", "später", "damit"];
-  const usedConnectors = connectors.filter(c => lower.includes(c)).length;
-  if (usedConnectors >= 4) score += 10;
-  else if (usedConnectors >= 3) score += 8;
-  else if (usedConnectors >= 2) score += 5;
-  else if (usedConnectors >= 1) score += 2;
+  if (thematicCount >= 5) score += 10;
+  else if (thematicCount >= 3) score += 7;
+  else if (thematicCount >= 1) score += 4;
 
-  // Structure mail
-  if (lower.includes("sehr geehrte") || lower.includes("hallo")) score += 2;
-  if (lower.includes("vorschlag") || lower.includes("termin")) score += 2;
-  if (lower.includes("mit freundlichen grüßen")) score += 3;
+  /* ------------------------------------------
+     3) Connecteurs B1 (10 pts)
+  ------------------------------------------ */
+  const connectors = [
+    "weil","deshalb","trotzdem","außerdem","danach",
+    "dann","zuerst","später","damit","obwohl"
+  ];
+  let connectorsUsed = connectors.filter(c => t.includes(c)).length;
 
-  // Grammaire B1
-  const modals = ["kann", "könnte", "muss", "soll", "würde", "möchte"];
-  const modalUsed = modals.filter(m => lower.includes(m)).length;
-  if (modalUsed >= 2) score += 5;
-  else if (modalUsed >= 1) score += 3;
+  if (connectorsUsed >= 5) score += 10;
+  else if (connectorsUsed >= 3) score += 7;
+  else if (connectorsUsed >= 2) score += 5;
+  else if (connectorsUsed >= 1) score += 2;
 
+  /* ------------------------------------------
+     4) Structure d'un mail (5 pts)
+  ------------------------------------------ */
+  if (t.includes("sehr geehrte") || t.includes("hallo")) score += 1;
+  if (t.includes("vorschlag") || t.includes("termin")) score += 1;
+  if (t.includes("mit freundlichen grüßen")) score += 3;
+
+  /* ------------------------------------------
+     5) Grammaire B1 (Modalverben, phrases)
+  ------------------------------------------ */
+  const modals = ["kann","könnte","muss","soll","würde","möchte"];
+  const modalCount = modals.filter(m => t.includes(m)).length;
+
+  if (modalCount >= 3) score += 5;
+  else if (modalCount >= 1) score += 3;
+
+  /* Score final */
   return Math.min(score, 40);
 }
 
-/* ----------------------------------------------------
-   ROUTE : Sauvegarder résultats
------------------------------------------------------*/
+// ✅ Route pour enregistrer les résultats
 app.post("/save", async (req, res) => {
   const { name, lesen, hoeren, schreiben_text } = req.body;
 
@@ -86,16 +105,17 @@ app.post("/save", async (req, res) => {
        VALUES ($1, $2, $3, $4, $5, $6)`,
       [name, lesen, hoeren, schreiben, schreiben_text, total]
     );
+
     res.json({ success: true, schreiben, total });
+
   } catch (err) {
-    console.error("❌ SQL Error:", err);
+    console.error("❌ Erreur SQL:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-/* ----------------------------------------------------
-   ROUTE : Liste des résultats admin
------------------------------------------------------*/
+
+// ✅ Route pour l’Admin
 app.get("/results", async (req, res) => {
   try {
     const { rows } = await pool.query(`SELECT * FROM results ORDER BY date DESC`);
@@ -105,15 +125,9 @@ app.get("/results", async (req, res) => {
   }
 });
 
-/* ----------------------------------------------------
-   SERVIR LE SITE 🌍 (important!!)
------------------------------------------------------*/
-app.use(express.static("./"));
 
-/* ----------------------------------------------------
-   Lancer serveur
------------------------------------------------------*/
+// 🚀 Démarrer serveur
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log("🚀 Serveur prêt sur port " + PORT);
 });
