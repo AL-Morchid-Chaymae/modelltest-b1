@@ -99,27 +99,41 @@ Railway.app
  ┗ 📄 README.md
 
 🚀 Running Locally
-1️⃣ Install dependencies
+### 1️⃣ Install dependencies
+
+```bash
 npm install
+```
 
-2️⃣ Start the server
+
+## 2️⃣ Start the server
+```bash
 node server.js
+```
 
-3️⃣ Open the app
+### 3️⃣ Open the app
+```bash
 http://localhost:3000
+```
 
 🗄️ Environment Variables
 Create a .env file:
+##
+```bash
 DATABASE_URL=your_postgres_url_here
 PORT=3000
+```
 
 🔐 Admin Panel
 
-Access:
+## Access:
+```bash
 /admin.html
+```
 
 🧠 Auto-Writing Evaluation Logic (Simplified)
-const score = evaluateWritingB1(text);
+## const score = evaluateWritingB1(text);
+```bash
 
 /*
 Checks:
@@ -131,6 +145,7 @@ Checks:
 - Frequent errors (das/dass…)
 - Copy/paste detection
 */
+```
 
 
 📜 License
