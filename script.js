@@ -105,61 +105,65 @@ function calculateResults() {
 }
 
 /* ===== AFFICHAGE & CERTIFICAT ===== */
-document.getElementById("submit-all")?.addEventListener("click", () => {
-  const r = calculateResults();
-  const box = document.getElementById("submit-msg");
+document.getElementById("submit-all")?.addEventListener("click", async () => {
+
+  // Envoi au serveur pour obtenir le vrai score B1
   const name = localStorage.getItem("candidateName") || "Kandidat";
+  const payload = {
+    name,
+    lesen: calculateResults().lesen,
+    hoeren: calculateResults().hoeren,
+    schreiben_text: storedAnswers.schreiben.text || ""
+  };
 
-  // ✅ Affichage stylé des résultats
-  box.innerHTML = `
-  <div class="result-box">
-    <h3>📊 Endergebnis</h3>
-
-    <div class="scores-row">
-      <div>📖 Lesen: <strong>${r.lesen}/30</strong></div>
-      <div>🎧 Hören: <strong>${r.hoeren}/30</strong></div>
-      <div>✍️ Schreiben: <strong>${r.schreiben}/40</strong></div>
-    </div>
-
-    <hr>
-    <h4>Gesamtpunktzahl: <strong>${r.total}/100</strong></h4>
-
-    <div class="progress-wrap">
-      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
-    </div>
-
-    <p class="${r.total >= 60 ? "success" : "fail"}">
-      ${r.total >= 60 
-        ? "🎉 Herzlichen Glückwunsch! Sie haben bestanden. Zertifikat wird erstellt..." 
-        : "❌ Leider nicht bestanden."}
-    </p>
-  </div>`;
-
-  // ♻️ Animation
-  setTimeout(() => { document.getElementById("progress-bar").style.width = r.total + "%"; }, 200);
-
-  // ✅ Enregistrer dans SQLite (backend Node.js)
-  fetch("https://modelltest-b1-production.up.railway.app/save", {
+  const response = await fetch("https://modelltest-b1-production.up.railway.app/save", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      lesen: r.lesen,
-      hoeren: r.hoeren,
-      schreiben: r.schreiben,
-      total: r.total,
-      schreiben_text: storedAnswers.schreiben.text || ""
-    })
-  })
-  .then(res => res.json())
-.then(data => console.log("✅ Daten gespeichert:", data))
-.catch(err => console.error("❌ Fehler beim Senden:", err));
+    body: JSON.stringify(payload)
+  });
 
-  // ✅ Générer un certificat **uniquement si réussite**
-  if (r.total >= 60) {
-    setTimeout(() => generateCertificate(name, r.total), 1200);
+  const data = await response.json();
+
+  // Le serveur renvoie : schreiben et total
+  const schreiben = data.schreiben;
+  const total = data.total;
+
+  // affichage
+  const box = document.getElementById("submit-msg");
+  box.innerHTML = `
+    <div class="result-box">
+      <h3>📊 Endergebnis</h3>
+
+      <div class="scores-row">
+        <div>📖 Lesen: <strong>${payload.lesen}/30</strong></div>
+        <div>🎧 Hören: <strong>${payload.hoeren}/30</strong></div>
+        <div>✍️ Schreiben: <strong>${schreiben}/40</strong></div>
+      </div>
+
+      <hr>
+      <h4>Gesamtpunktzahl: <strong>${total}/100</strong></h4>
+
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+
+      <p class="${total >= 60 ? "success" : "fail"}">
+        ${total >= 60 
+          ? "🎉 Herzlichen Glückwunsch! Sie haben bestanden. Zertifikat wird erstellt..." 
+          : "❌ Leider nicht bestanden."}
+      </p>
+    </div>
+  `;
+
+  setTimeout(() => { 
+    document.getElementById("progress-bar").style.width = total + "%"; 
+  }, 200);
+
+  if (total >= 60) {
+    setTimeout(() => generateCertificate(name, total), 1200);
   }
 });
+
 
 
 /* ===== RESET TEST ===== */
