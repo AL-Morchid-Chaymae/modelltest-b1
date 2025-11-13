@@ -62,6 +62,76 @@ function evaluateWritingB1(text) {
   return Math.min(score, 40);
 }
 
+function evaluateWritingB1(text) {
+  if (!text || text.trim().length < 10) return 0;
+
+  let score = 0;
+  const lower = text.toLowerCase();
+
+  /* =====================================================
+        1) LONGUEUR DU TEXTE – 8 points max
+  ====================================================== */
+  const wc = text.trim().split(/\s+/).length;
+
+  if (wc >= 50) score += 4;
+  if (wc >= 80) score += 6;
+  if (wc >= 120) score += 8;
+
+
+  /* =====================================================
+        2) RESPECT DU THÈME – 10 points max
+        (vérifie s’il parle du meeting, email, Termin…)
+  ====================================================== */
+  const keywords = ["meeting", "projekt", "termin", "email", "teilnehmen", "absage", "vorschlag", "leiterin"];
+
+  let relevantCount = keywords.filter(k => lower.includes(k)).length;
+
+  if (relevantCount >= 5) score += 10;
+  else if (relevantCount >= 3) score += 6;
+  else if (relevantCount >= 1) score += 3;
+  else score += 0; // hors sujet
+
+
+  /* =====================================================
+        3) CONNECTEURS B1 – 10 points max
+  ====================================================== */
+  const connectors = ["weil", "deshalb", "trotzdem", "außerdem", "danach", "zuerst", "später", "damit"];
+  let usedConnectors = connectors.filter(c => lower.includes(c)).length;
+
+  if (usedConnectors >= 4) score += 10;
+  else if (usedConnectors >= 3) score += 8;
+  else if (usedConnectors >= 2) score += 5;
+  else if (usedConnectors >= 1) score += 2;
+
+
+  /* =====================================================
+        4) STRUCTURE OBLIGATOIRE MAIL – 7 points
+  ====================================================== */
+  if (lower.includes("sehr geehrte") || lower.includes("hallo")) score += 2;
+  if (lower.includes("vorschlag") || lower.includes("vorschlagen") || lower.includes("termin")) score += 2;
+  if (lower.includes("mit freundlichen grüßen")) score += 3;
+
+
+  /* =====================================================
+        5) GRAMMAIRE B1 DE BASE – 5 points
+        (modalverben + verbe en fin de phrase)
+  ====================================================== */
+  const modals = ["kann", "könnte", "muss", "soll", "würde", "möchte"];
+  const modalUsed = modals.filter(m => lower.includes(m)).length;
+
+  if (modalUsed >= 2) score += 5;
+  else if (modalUsed >= 1) score += 3;
+
+
+  /* =====================================================
+        Score final
+  ====================================================== */
+  return Math.min(score, 40);
+}
+
+
+
+
 // ✅ Route pour enregistrer les résultats
 app.post("/save", async (req, res) => {
   const { name, lesen, hoeren, schreiben_text } = req.body;
