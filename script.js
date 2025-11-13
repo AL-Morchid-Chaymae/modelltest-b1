@@ -86,7 +86,8 @@ function calculateResults() {
   if (storedAnswers.lesen.q1 === "fahrrad") lesen += 5;
   if (storedAnswers.lesen.q2 === "cafe") lesen += 5;
   if (storedAnswers.lesen.q3 === "berge") lesen += 5;
-  if ((storedAnswers.lesen.q4 || "").toLowerCase().includes("lesen") || (storedAnswers.lesen.q4 || "").toLowerCase().includes("gärtnern")) lesen += 5;
+  if ((storedAnswers.lesen.q4 || "").toLowerCase().includes("lesen") || 
+      (storedAnswers.lesen.q4 || "").toLowerCase().includes("gärtnern")) lesen += 5;
   if (storedAnswers.lesen.q5 === "falsch") lesen += 5;
   if ((storedAnswers.lesen.q6 || "").toLowerCase().includes("haus")) lesen += 5;
 
@@ -95,21 +96,10 @@ function calculateResults() {
   if ((storedAnswers.hoeren.bahnhof || "").length > 5) hoeren += 10;
   if ((storedAnswers.hoeren.arbeit || "").length > 5) hoeren += 10;
 
-  // SCHREIBEN (longueur)
-  const text = storedAnswers.schreiben.text || "";
-const wc = text.split(/\s+/).filter(Boolean).length;
-
-if (wc === 0) {
+  // 🚫 L'ancien calcul Schreiben est supprimé
+  // 🔥 NOTE Schreiben sera calculée dans le serveur Node.js
   schreiben = 0;
-} else if (wc < 40) {
-  schreiben = 5;
-} else if (wc < 80) {
-  schreiben = 20;
-} else if (wc < 120) {
-  schreiben = 30;
-} else {
-  schreiben = 40;
-}
+
 
   return { lesen, hoeren, schreiben, total: lesen + hoeren + schreiben };
 }
