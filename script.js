@@ -1,5 +1,5 @@
 /* ===== TIMER 60 MINUTES ===== */
-let timeLeft = 60 * 60; // 60 minutes en secondes
+let timeLeft = 90 * 60; // 60 minutes en secondes
 const timerEl = document.getElementById("timerEl");
 
 function updateTimer() {

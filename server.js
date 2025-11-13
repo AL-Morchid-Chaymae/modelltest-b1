@@ -34,43 +34,40 @@ CREATE TABLE IF NOT EXISTS results (
 function evaluateWritingB1(text) {
   if (!text || text.trim().length < 10) return 0;
 
-  const lower = text.toLowerCase();
   let score = 0;
+  const lower = text.toLowerCase();
+  const wc = text.trim().split(/\s+/).length;
 
   /* =====================================================
-      1) LONGUEUR DU TEXTE – 8 points max
+        1) LONGUEUR DU TEXTE – 8 points
   ====================================================== */
-  const wc = text.trim().split(/\s+/).length;
   if (wc >= 50) score += 4;
   if (wc >= 80) score += 6;
   if (wc >= 120) score += 8;
 
   /* =====================================================
-      2) RESPECT DU THÈME (hors-sujet) – 12 points max
-      Vérifie si l'étudiant parle du Meeting, Termin, Email…
+        2) RESPECT DU THÈME – 10 points
   ====================================================== */
   const keywords = [
-    "meeting", "projekt", "projektleiterin", "leiterin", "team",
-    "termin", "absage", "einladung", "teilnehmen", "ersatztermin",
-    "email", "vorschlag", "unterlagen"
+    "meeting", "projekt", "termin", "email", "teilnehmen",
+    "absage", "vorschlag", "leiterin", "verpflichtung"
   ];
 
-  let relevantCount = keywords.filter(k => lower.includes(k)).length;
+  const relevantCount = keywords.filter(k => lower.includes(k)).length;
 
-  if (relevantCount >= 6) score += 12;   // très pertinent
-  else if (relevantCount >= 4) score += 8;
-  else if (relevantCount >= 2) score += 4;
-  else score += 0;                       // hors sujet
+  if (relevantCount >= 5) score += 10;
+  else if (relevantCount >= 3) score += 6;
+  else if (relevantCount >= 1) score += 3;
+  else score -= 5;  // ❗ Pénalité hors sujet
 
   /* =====================================================
-      3) CONNECTEURS B1 – 10 points max
+        3) CONNECTEURS B1 – 10 points
   ====================================================== */
   const connectors = [
-    "weil", "deshalb", "trotzdem", "außerdem", "danach", 
-    "zuerst", "später", "damit", "dann", "jedoch"
+    "weil", "deshalb", "trotzdem", "außerdem",
+    "danach", "zuerst", "später", "damit"
   ];
-
-  let usedConnectors = connectors.filter(c => lower.includes(c)).length;
+  const usedConnectors = connectors.filter(c => lower.includes(c)).length;
 
   if (usedConnectors >= 4) score += 10;
   else if (usedConnectors >= 3) score += 8;
@@ -78,33 +75,67 @@ function evaluateWritingB1(text) {
   else if (usedConnectors >= 1) score += 2;
 
   /* =====================================================
-      4) STRUCTURE FORMELLE D’UN MAIL – 8 points max
+        4) STRUCTURE EMAIL – 7 points
   ====================================================== */
-  let structurePoints = 0;
-
-  if (lower.includes("sehr geehrte") || lower.includes("hallo")) structurePoints += 2;
-  if (lower.includes("vorschlag") || lower.includes("termin")) structurePoints += 2;
-  if (lower.includes("mit freundlichen grüßen")) structurePoints += 4;
-
-  score += structurePoints;
+  if (lower.includes("sehr geehrte") || lower.includes("hallo")) score += 2;
+  if (lower.includes("vorschlag") || lower.includes("termin")) score += 2;
+  if (lower.includes("mit freundlichen grüßen")) score += 3;
 
   /* =====================================================
-      5) GRAMMAIRE B1 — Modalverben, verbe à la fin – 10 points max
+        5) MODALVERBEN / GRAMMAIRE – 5 points
   ====================================================== */
-  const modalVerbs = ["kann", "könnte", "muss", "soll", "würde", "möchte"];
-  const modalUsed = modalVerbs.filter(m => lower.includes(m)).length;
+  const modals = ["kann", "könnte", "muss", "soll", "würde", "möchte"];
+  const modalUsed = modals.filter(m => lower.includes(m)).length;
 
-  if (modalUsed >= 3) score += 10;
-  else if (modalUsed >= 2) score += 7;
-  else if (modalUsed >= 1) score += 4;
+  if (modalUsed >= 2) score += 5;
+  else if (modalUsed >= 1) score += 3;
 
   /* =====================================================
-      SCORE FINAL (max = 40)
+        6) ERREURS FRÉQUENTES – (das/dass, Großschreibung)
+        → max -7 points de pénalité
   ====================================================== */
-  return Math.min(score, 40);
+
+  let penalty = 0;
+
+  // Erreur das/dass
+  const dasCount = (lower.match(/\bdas\b/g) || []).length;
+  const dassCount = (lower.match(/\bdass\b/g) || []).length;
+
+  if (dasCount > 0 && dassCount === 0) penalty += 2;  // mauvais usage probable
+
+  // Gross/Kleinschreibung
+  const wrongCaps = (text.match(/\b(Ich|Wir|Es|Man)\b/g) || []).length;
+  if (wrongCaps < 1) penalty += 2;
+
+  // Verbes non conjugués
+  const infinitives = (lower.match(/\b(gehen|machen|haben|sein|arbeiten|kommen)\b/g) || []).length;
+  if (infinitives > 3) penalty += 3;
+
+  score -= penalty;
+
+
+  /* =====================================================
+        7) ANTI-PLAGIAT – pénalité si copie du sujet
+        → max -10 points
+  ====================================================== */
+
+  const sujet =
+    "projekt meeting persönliche gründe familie teilnehmen termin alternative unterlagen telefon video";
+
+  let copiedWords = 0;
+  sujet.split(" ").forEach(word => {
+    if (lower.includes(word)) copiedWords++;
+  });
+
+  if (copiedWords > 6) score -= 10;
+  else if (copiedWords > 3) score -= 5;
+
+
+  /* =====================================================
+        Score final
+  ====================================================== */
+  return Math.max(0, Math.min(score, 40));
 }
-
-
 // ✅ Route pour enregistrer les résultats
 app.post("/save", async (req, res) => {
   const { name, lesen, hoeren, schreiben_text } = req.body;
