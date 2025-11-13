@@ -7,13 +7,13 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// ✅ Connexion PostgreSQL
+// ✔ Connexion PostgreSQL Railway
 const pool = new Pool({
   connectionString: "postgresql://postgres:SHWMkIlzbUwjsEnilEXEWnMViMNLWrvC@mainline.proxy.rlwy.net:10061/railway",
   ssl: { rejectUnauthorized: false }
 });
 
-// ✅ Création de la table
+// ✔ Création table
 pool.query(`
 CREATE TABLE IF NOT EXISTS results (
   id SERIAL PRIMARY KEY,
@@ -27,114 +27,56 @@ CREATE TABLE IF NOT EXISTS results (
 );
 `);
 
-// 🧩 Fonction d’évaluation automatique du Schreiben B1
-function evaluateWritingB1(text) {
-  if (!text) return 0;
-
-  const wordCount = text.trim().split(/\s+/).length;
-  let score = 0;
-
-  // Longueur du texte (max 20 pts)
-  if (wordCount < 50) score += 5;
-  else if (wordCount < 80) score += 10;
-  else if (wordCount < 120) score += 15;
-  else score += 20;
-
-  // Richesse lexicale (max 10 pts)
-  const uniqueWords = new Set(text.toLowerCase().match(/\b[a-zäöüß]+\b/g) || []);
-  const diversity = uniqueWords.size / wordCount;
-  if (diversity > 0.4) score += 10;
-  else if (diversity > 0.3) score += 8;
-  else if (diversity > 0.2) score += 5;
-
-  // Grammaire simple (max 10 pts)
-  const errors = (text.match(/\b(haben|sein|werden|würde|weil|dass|wenn|kann|soll|möchte)\b/gi) || []).length;
-  if (errors > 5) score += 8;
-  else if (errors > 2) score += 6;
-  else score += 10;
-
-  // Cohérence de phrases (max 10 pts)
-  const connectives = (text.match(/\b(weil|deshalb|trotzdem|außerdem|dann|zuerst|danach|später)\b/gi) || []).length;
-  if (connectives >= 3) score += 10;
-  else if (connectives >= 2) score += 8;
-  else if (connectives >= 1) score += 5;
-
-  return Math.min(score, 40);
-}
-
+/* ----------------------------------------------------
+   FONCTION : Correction automatique Schreiben B1
+-----------------------------------------------------*/
 function evaluateWritingB1(text) {
   if (!text || text.trim().length < 10) return 0;
 
   let score = 0;
   const lower = text.toLowerCase();
 
-  /* =====================================================
-        1) LONGUEUR DU TEXTE – 8 points max
-  ====================================================== */
+  // Longueur
   const wc = text.trim().split(/\s+/).length;
-
   if (wc >= 50) score += 4;
   if (wc >= 80) score += 6;
   if (wc >= 120) score += 8;
 
-
-  /* =====================================================
-        2) RESPECT DU THÈME – 10 points max
-        (vérifie s’il parle du meeting, email, Termin…)
-  ====================================================== */
+  // Respect du sujet
   const keywords = ["meeting", "projekt", "termin", "email", "teilnehmen", "absage", "vorschlag", "leiterin"];
-
-  let relevantCount = keywords.filter(k => lower.includes(k)).length;
-
+  const relevantCount = keywords.filter(k => lower.includes(k)).length;
   if (relevantCount >= 5) score += 10;
   else if (relevantCount >= 3) score += 6;
   else if (relevantCount >= 1) score += 3;
-  else score += 0; // hors sujet
 
-
-  /* =====================================================
-        3) CONNECTEURS B1 – 10 points max
-  ====================================================== */
+  // Connecteurs B1
   const connectors = ["weil", "deshalb", "trotzdem", "außerdem", "danach", "zuerst", "später", "damit"];
-  let usedConnectors = connectors.filter(c => lower.includes(c)).length;
-
+  const usedConnectors = connectors.filter(c => lower.includes(c)).length;
   if (usedConnectors >= 4) score += 10;
   else if (usedConnectors >= 3) score += 8;
   else if (usedConnectors >= 2) score += 5;
   else if (usedConnectors >= 1) score += 2;
 
-
-  /* =====================================================
-        4) STRUCTURE OBLIGATOIRE MAIL – 7 points
-  ====================================================== */
+  // Structure mail
   if (lower.includes("sehr geehrte") || lower.includes("hallo")) score += 2;
-  if (lower.includes("vorschlag") || lower.includes("vorschlagen") || lower.includes("termin")) score += 2;
+  if (lower.includes("vorschlag") || lower.includes("termin")) score += 2;
   if (lower.includes("mit freundlichen grüßen")) score += 3;
 
-
-  /* =====================================================
-        5) GRAMMAIRE B1 DE BASE – 5 points
-        (modalverben + verbe en fin de phrase)
-  ====================================================== */
+  // Grammaire B1
   const modals = ["kann", "könnte", "muss", "soll", "würde", "möchte"];
   const modalUsed = modals.filter(m => lower.includes(m)).length;
-
   if (modalUsed >= 2) score += 5;
   else if (modalUsed >= 1) score += 3;
 
-
-  /* =====================================================
-        Score final
-  ====================================================== */
   return Math.min(score, 40);
 }
 
-
-
-
-// ✅ Route pour enregistrer les résultats
+/* ----------------------------------------------------
+   ROUTE : Sauvegarder résultats
+-----------------------------------------------------*/
 app.post("/save", async (req, res) => {
   const { name, lesen, hoeren, schreiben_text } = req.body;
+
   const schreiben = evaluateWritingB1(schreiben_text || "");
   const total = lesen + hoeren + schreiben;
 
@@ -146,12 +88,14 @@ app.post("/save", async (req, res) => {
     );
     res.json({ success: true, schreiben, total });
   } catch (err) {
-    console.error("❌ Erreur SQL:", err);
+    console.error("❌ SQL Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ Route pour afficher les résultats
+/* ----------------------------------------------------
+   ROUTE : Liste des résultats admin
+-----------------------------------------------------*/
 app.get("/results", async (req, res) => {
   try {
     const { rows } = await pool.query(`SELECT * FROM results ORDER BY date DESC`);
@@ -161,8 +105,15 @@ app.get("/results", async (req, res) => {
   }
 });
 
-// ✅ Lancer serveur
+/* ----------------------------------------------------
+   SERVIR LE SITE 🌍 (important!!)
+-----------------------------------------------------*/
+app.use(express.static("./"));
+
+/* ----------------------------------------------------
+   Lancer serveur
+-----------------------------------------------------*/
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Serveur actif → http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
