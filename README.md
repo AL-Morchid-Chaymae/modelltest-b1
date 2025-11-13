@@ -86,6 +86,8 @@ Deployment
 Railway.app
 
 📁 Project Structure
+##
+```bash
 📦 modeltest-b1
  ┣ 📂 audio
  ┣ 📂 images
@@ -97,6 +99,7 @@ Railway.app
  ┣ 📄 admin.js
  ┣ 📄 server.js
  ┗ 📄 README.md
+ ```
 
 🚀 Running Locally
 ### 1️⃣ Install dependencies
